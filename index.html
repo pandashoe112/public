@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFS Dental · Site Architecture · March 2026</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ebebeb;
+    --card-bg: #fff;
+    --border: #d4d4d4;
+    --text: #111827;
+    --muted: #6b7280;
+    --small: #9ca3af;
+
+    --col-services: #16a34a;
+    --col-about: #4f46e5;
+    --col-blog: #d97706;
+    --col-faq: #2563eb;
+    --col-financial: #0d9488;
+    --col-patient: #7c3aed;
+    --col-specials: #db2777;
+    --col-tech: #475569;
+    --col-contact: #dc2626;
+    --col-other: #9ca3af;
+  }
+
+  html { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+  body { min-height: 100vh; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 72px 80px 64px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--muted); margin-bottom: 28px;
+    background: rgba(0,0,0,0.06); padding: 6px 14px; border-radius: 100px;
+  }
+  .hero-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+  h1 {
+    font-size: 56px; font-weight: 700; line-height: 1.1;
+    letter-spacing: -0.03em; color: var(--text);
+    max-width: 820px; margin-bottom: 20px;
+  }
+  .hero-sub {
+    font-size: 18px; color: var(--muted); max-width: 580px; line-height: 1.65;
+  }
+
+  /* ── IA DIAGRAM ── */
+  .ia-section {
+    padding: 0 80px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Root node */
+  .ia-root-wrap {
+    display: flex; justify-content: center;
+    margin-bottom: 0;
+    position: relative;
+  }
+  .ia-root-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 1px; height: 28px;
+    background: #aaa;
+  }
+  .ia-root {
+    background: #1a1f2e;
+    color: #fff;
+    font-size: 15px; font-weight: 600;
+    padding: 14px 32px;
+    border-radius: 10px;
+    letter-spacing: -0.01em;
+    margin-bottom: 28px;
+  }
+
+  /* Connector bar */
+  .ia-connector {
+    position: relative;
+    height: 28px;
+    margin-bottom: 0;
+  }
+  .ia-connector-line {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 1px; height: 28px;
+    background: #aaa;
+  }
+
+  /* Horizontal bar */
+  .ia-h-bar-wrap {
+    display: flex; justify-content: center;
+    margin-bottom: 0;
+    position: relative;
+  }
+  .ia-h-bar {
+    /* drawn via js/absolute positioning — use table layout instead */
+  }
+
+  /* Cards row */
+  .ia-cards-outer {
+    position: relative;
+  }
+  .ia-cards-outer::before {
+    /* horizontal line connecting all columns */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: calc(100% / 12);
+    right: calc(100% / 12);
+    height: 1px;
+    background: #aaa;
+  }
+  .ia-cards {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    padding-top: 28px;
+  }
+  .ia-cards::before {
+    /* vertical stubs above each card */
+    display: none;
+  }
+
+  /* Individual section card */
+  .ia-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 18px 16px;
+    position: relative;
+    display: flex; flex-direction: column; gap: 0;
+  }
+  .ia-card::before {
+    content: '';
+    position: absolute;
+    top: -28px; left: 50%;
+    transform: translateX(-50%);
+    width: 1px; height: 28px;
+    background: #aaa;
+  }
+  .ia-card--highlight {
+    border-color: var(--col-services);
+    box-shadow: 0 0 0 3px rgba(22,163,74,0.12);
+  }
+  .ia-card--highlight-faq {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
+  }
+
+  .ia-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .ia-card-title {
+    font-size: 14px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .ia-card-title--colored { }
+  .ia-card-badge {
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px;
+    letter-spacing: 0.04em; text-transform: uppercase; flex-shrink: 0;
+  }
+  .badge-ok    { background: #dcfce7; color: #15803d; }
+  .badge-issue { background: #fef3c7; color: #92400e; }
+  .badge-warn  { background: #fee2e2; color: #b91c1c; }
+  .badge-dup   { background: #fef9c3; color: #854d0e; }
+
+  .ia-card-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .ia-card-row {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12.5px; color: var(--text); gap: 6px;
+  }
+  .ia-card-row-label { flex: 1; }
+  .ia-row-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+    letter-spacing: 0.03em; flex-shrink: 0; white-space: nowrap;
+  }
+  .rb-id   { background: #fef3c7; color: #92400e; }
+  .rb-ok   { background: #dcfce7; color: #15803d; }
+  .rb-dup  { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+  .rb-bloat{ background: #fee2e2; color: #b91c1c; }
+  .rb-noix { background: #f1f5f9; color: #64748b; }
+  .rb-new  { background: #eff6ff; color: #1d4ed8; }
+
+  .ia-card-note {
+    font-size: 11px; color: var(--small); line-height: 1.5;
+    border-top: 1px solid #f0f0f0; padding-top: 10px; margin-top: auto;
+  }
+  .ia-card-note strong { color: var(--muted); font-weight: 600; }
+
+  /* Sub-page hierarchy within a card */
+  .ia-card-subgroup {
+    margin-left: 6px;
+    padding-left: 10px;
+    border-left: 1.5px solid #e2e8f0;
+    display: flex; flex-direction: column; gap: 6px;
+    margin-top: 2px;
+  }
+  .ia-card-row--sub {
+    font-size: 12px; color: var(--muted);
+  }
+  .ia-card-row--sub .ia-card-row-label {
+    color: var(--muted);
+  }
+
+  /* Legend */
+  .ia-legend {
+    display: flex; flex-wrap: wrap; gap: 20px; align-items: center;
+    margin-top: 28px; padding: 16px 20px;
+    background: rgba(0,0,0,0.04); border-radius: 10px;
+  }
+  .ia-legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    border: none; border-top: 1px solid var(--border);
+    margin: 0 80px;
+  }
+
+  /* ── STICKY NAV ── */
+  .page-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(235,235,235,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #d4d4d4;
+    padding: 0 80px;
+  }
+  .page-nav-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; gap: 4px; height: 48px;
+  }
+  .page-nav-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--small); margin-right: 12px;
+  }
+  .nav-btn {
+    font-size: 12px; font-weight: 500; color: var(--muted);
+    padding: 6px 14px; border-radius: 20px; cursor: pointer;
+    border: 1px solid transparent; text-decoration: none;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .nav-btn:hover { background: #fff; border-color: var(--border); color: var(--text); }
+  .nav-btn.active { background: #1a1f2e; color: #fff; border-color: #1a1f2e; }
+  .nav-sep { width: 1px; height: 16px; background: var(--border); margin: 0 4px; }
+
+  /* ── VISUAL SITEMAP ── */
+  .vis-col { display: flex; flex-direction: column; align-items: center; }
+  .vis-stub {
+    width: 1px; height: 20px; background: #bbb; flex-shrink: 0;
+  }
+  .vis-card {
+    width: 100%; background: #fff; border: 1px solid var(--border);
+    border-top: 3px solid #ccc; border-radius: 10px;
+    padding: 14px 14px 12px; font-size: 12px;
+  }
+  .vis-card-title {
+    font-size: 13px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 3px;
+  }
+  .vis-card-url {
+    font-family: monospace; font-size: 10.5px; color: var(--small); margin-bottom: 10px;
+  }
+  .vis-children { display: flex; flex-direction: column; gap: 3px; border-top: 1px solid #f0f0f0; padding-top: 9px; }
+  .vis-child {
+    font-size: 11.5px; color: var(--muted); display: flex; align-items: center;
+    gap: 5px; flex-wrap: wrap;
+  }
+  .vis-child::before { content: '·'; color: #d1d5db; flex-shrink: 0; }
+  .vis-child--merged { color: var(--text); font-weight: 500; }
+  .vis-child--noix { opacity: 0.5; }
+  .vis-child-count {
+    font-size: 11px; color: var(--small); display: flex; align-items: center;
+    gap: 5px; flex-wrap: wrap; font-style: italic;
+  }
+  .vis-badge {
+    font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 20px;
+    letter-spacing: 0.02em; flex-shrink: 0;
+  }
+
+  /* ── SITEMAP ROWS ── */
+  .sm-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; background: #fff;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 13px;
+  }
+  .sm-row.sm-l2 { background: #fafafa; }
+  .sm-row.sm-spacer { margin-top: 6px; }
+  .sm-indent-1 { width: 0; }
+  .sm-indent-2 { width: 24px; flex-shrink: 0; }
+  .sm-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .sm-name { font-weight: 600; color: var(--text); min-width: 160px; }
+  .sm-name.sm-sub { font-weight: 400; color: var(--muted); }
+  .sm-url { font-family: monospace; font-size: 11.5px; color: var(--small); min-width: 200px; }
+  .sm-type {
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+    background: #f3f4f6; color: var(--muted); letter-spacing: 0.04em;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .sm-type--noix { background: #f1f5f9; color: #64748b; }
+  .sm-count { font-size: 12px; color: var(--small); margin-left: auto; white-space: nowrap; }
+  .sm-note {
+    font-size: 11px; color: var(--small); margin-left: 8px;
+    padding: 2px 8px; border-radius: 4px; background: #f9fafb;
+    white-space: nowrap;
+  }
+  .sm-note--warn { background: #fffbeb; color: #92400e; }
+
+  /* ── DETAIL TREE ── */
+  .tree-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 56px 80px 80px;
+  }
+  .tree-wrap-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--small); margin-bottom: 24px;
+  }
+
+  .tree-root {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; background: #1a1f2e;
+    border-radius: 10px; margin-bottom: 12px;
+  }
+  .tree-root-label { font-size: 14px; font-weight: 600; color: #fff; }
+  .tree-root-url { font-size: 12px; color: rgba(255,255,255,0.4); margin-left: auto; font-family: monospace; }
+
+  .tree-branches { padding-left: 20px; }
+
+  .tree-group { margin-bottom: 6px; }
+  .tree-group-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 8px;
+    cursor: pointer; user-select: none;
+    background: #fff; border: 1px solid var(--border);
+    transition: background 0.15s; position: relative;
+  }
+  .tree-group-header:hover { background: #f9fafb; }
+  .tree-group-header::before {
+    content: ''; position: absolute; left: -20px; top: 50%;
+    width: 20px; height: 1px; background: var(--border);
+  }
+  .tg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .tg-label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .tg-path {
+    font-size: 11px; color: var(--muted); font-family: monospace;
+    background: #f3f4f6; padding: 2px 6px; border-radius: 4px; margin-left: 2px;
+  }
+  .tg-count { margin-left: auto; font-size: 11px; color: var(--small); background: #f3f4f6; padding: 2px 8px; border-radius: 20px; }
+  .tg-toggle { margin-left: 6px; font-size: 11px; color: var(--small); transition: transform 0.2s; }
+  .tree-group.open .tg-toggle { transform: rotate(90deg); }
+
+  .tree-children {
+    padding-left: 24px; margin-top: 4px; display: block;
+    border-left: 1px solid var(--border); margin-left: 14px;
+    position: relative;
+    max-height: 128px;
+    overflow: hidden;
+  }
+  .tree-group.open .tree-children {
+    max-height: none;
+    overflow: visible;
+  }
+  /* Gradient fade — only shown on groups that actually overflow */
+  .tree-group.has-overflow:not(.open) .tree-children::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: -1px; right: 0;
+    height: 72px;
+    background: linear-gradient(to bottom, rgba(235,235,235,0) 0%, #ebebeb 100%);
+    pointer-events: none;
+    border-radius: 0 0 4px 4px;
+  }
+  /* "Expand" hint on truncated groups — shown after the toggle arrow */
+  .tree-group.has-overflow:not(.open) .tree-group-header .tg-toggle::after {
+    content: ' · expand';
+    font-size: 10px; color: var(--small); letter-spacing: 0.03em; font-style: italic;
+  }
+
+  .tree-node {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 7px; font-size: 13px; color: var(--text);
+    background: #fff; border: 1px solid transparent; margin-bottom: 4px; position: relative;
+  }
+  .tree-node::before {
+    content: ''; position: absolute; left: -24px; top: 50%;
+    width: 24px; height: 1px; background: var(--border);
+  }
+  .tree-node-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .tree-node-title { flex: 1; }
+  .tree-node-path {
+    font-size: 11px; color: var(--small); font-family: monospace;
+    margin-left: auto; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tree-node--noindex .tree-node-title::after {
+    content: 'noindex'; font-size: 10px; color: #ef4444;
+    background: #fee2e2; padding: 1px 5px; border-radius: 3px;
+    margin-left: 6px; font-weight: 600;
+  }
+
+  .tree-more {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px; margin-bottom: 4px; font-size: 12px; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 7px;
+    background: #fafafa; cursor: pointer; position: relative;
+  }
+  .tree-more::before {
+    content: ''; position: absolute; left: -24px; top: 50%;
+    width: 24px; height: 1px; background: var(--border);
+  }
+  .tree-more-badge {
+    font-size: 11px; font-weight: 700; background: #e5e7eb;
+    color: var(--muted); padding: 2px 8px; border-radius: 20px;
+  }
+  .tree-more-extra { display: none; }
+  .tree-more-extra.visible { display: block; }
+
+  /* ── FULL INVENTORY PREVIEW TRUNCATION ── */
+  .tree-wrap-preview {
+    position: relative;
+    overflow: hidden;
+  }
+  .tree-wrap-preview::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 160px;
+    background: linear-gradient(to bottom, rgba(235,235,235,0) 0%, #ebebeb 100%);
+    pointer-events: none;
+  }
+  .tree-expand-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: calc(100% - 160px); max-width: 1000px;
+    margin: -8px auto 64px;
+    padding: 13px 0;
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    font-size: 13px; color: var(--muted); cursor: pointer; font-family: inherit;
+    transition: all 0.15s;
+  }
+  .tree-expand-btn:hover { background: #f9fafb; color: var(--text); border-color: #c4c4c4; }
+  .tree-expand-btn .btn-icon { font-size: 15px; color: var(--small); }
+</style>
+</head>
+<body>
+
+<!-- ── LOGO HEADER ── -->
+<div style="background:#ebebeb; padding: 28px 80px 0;">
+  <div style="max-width:1400px; margin:0 auto;">
+    <img src="Group 2235.png" alt="CFS Dental" style="height:52px; width:auto; display:block; margin-bottom:28px;">
+    <hr style="border:none; border-top:1px solid #d4d4d4; margin:0;">
+  </div>
+</div>
+
+<!-- ── STICKY NAV ── -->
+<nav class="page-nav">
+  <div class="page-nav-inner">
+    <span class="page-nav-label">Jump to</span>
+    <a class="nav-btn active" href="#current">Current site</a>
+    <a class="nav-btn" href="#recommended">Recommended</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div id="current">
+<div class="hero">
+  <div class="hero-tag">
+    <span class="hero-tag-dot"></span>
+    Current site &middot; March 2026
+  </div>
+  <h1>Where the site stands today.</h1>
+  <p class="hero-sub">120+ pages across 8 sections — a full audit of what's there, what's working, and what's creating problems for search engines.</p>
+</div>
+
+<!-- ── IA DIAGRAM ── -->
+<div class="ia-section">
+
+  <div class="ia-root-wrap">
+    <div class="ia-root">cfsdental.com.au</div>
+  </div>
+
+  <div class="ia-cards-outer">
+    <div class="ia-cards">
+
+      <!-- ABOUT US -->
+      <div class="ia-card">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-about)">About Us</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-row"><span class="ia-card-row-label">Dr Andrew Ng</span><span class="ia-row-badge rb-id">URL issue</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Dr Marian Boulos</span><span class="ia-row-badge rb-id">URL issue</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Dr Bassem Yacoub</span><span class="ia-row-badge rb-id">URL issue</span></div>
+        </div>
+        <div class="ia-card-note">Team page URLs have numbers appended — e.g. <strong>/dr-andrew-ng/21363</strong> — messy and hard to share</div>
+      </div>
+
+      <!-- SERVICES -->
+      <div class="ia-card ia-card--highlight">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-services)">Services</span>
+          <span class="ia-card-badge badge-ok">Strongest section</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-row"><span class="ia-card-row-label">Dental Implants</span><span class="ia-row-badge rb-ok">OK</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Invisalign®</span><span class="ia-row-badge rb-ok">OK</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Emergency Dentistry</span><span class="ia-row-badge rb-ok">OK</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">+ 10 more services</span><span class="ia-row-badge rb-ok">OK</span></div>
+        </div>
+        <div class="ia-card-note">The strongest section — clean URLs, good structure. <strong>Right foundation to build from.</strong></div>
+      </div>
+
+      <!-- BLOG -->
+      <div class="ia-card ia-card--highlight-faq">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-blog)">Blog</span>
+          <span class="ia-card-badge badge-issue">Duplication</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-row"><span class="ia-card-row-label">Blog index</span><span class="ia-row-badge rb-ok">OK</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Categories × 12</span><span class="ia-row-badge rb-dup">Duplicate</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Posts × 30+</span><span class="ia-row-badge rb-id">URL issue</span></div>
+        </div>
+        <div class="ia-card-note">Blog categories duplicate the services section — Google sees them as competing pages for the same topics</div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="ia-card ia-card--highlight-faq">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-faq)">FAQ</span>
+          <span class="ia-card-badge badge-warn">Page bloat</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-row"><span class="ia-card-row-label">FAQ index <em style="font-size:10px;color:var(--small)">/faqs</em></span><span class="ia-row-badge rb-ok">OK</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Individual pages × 85+</span><span class="ia-row-badge rb-bloat">Bloat</span></div>
+        </div>
+        <div class="ia-card-note">85+ one-question pages, most with <strong>zero organic clicks.</strong> A single well-structured FAQ page per topic would outperform all of them.</div>
+      </div>
+
+      <!-- FINANCIAL -->
+      <div class="ia-card">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-financial)">Financial Info</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-row"><span class="ia-card-row-label">Health Funds</span><span class="ia-row-badge rb-id">URL issue</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">HICAPS</span><span class="ia-row-badge rb-id">URL issue</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Payment Options</span><span class="ia-row-badge rb-id">URL issue</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Payment Plans</span><span class="ia-row-badge rb-id">URL issue</span></div>
+        </div>
+        <div class="ia-card-note">Good content — just messy URLs that need cleaning up.</div>
+      </div>
+
+      <!-- OTHER -->
+      <div class="ia-card">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-other)">Standalone</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-row"><span class="ia-card-row-label">Contact</span><span class="ia-row-badge rb-ok">OK</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Forms</span><span class="ia-row-badge rb-ok">OK</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Office Tour</span><span class="ia-row-badge rb-ok">OK</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Privacy Policy</span><span class="ia-row-badge rb-noix">noindex</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Privacy (duplicate)</span><span class="ia-row-badge rb-noix">noindex</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Specials</span><span class="ia-row-badge rb-ok">OK</span></div>
+        </div>
+        <div class="ia-card-note">Two separate privacy pages exist — <strong>/privacy-policy</strong> and <strong>/main/privacy</strong></div>
+      </div>
+
+    </div><!-- /ia-cards -->
+  </div><!-- /ia-cards-outer -->
+
+  <!-- Legend -->
+  <div class="ia-legend">
+    <div class="ia-legend-item">
+      <span class="ia-row-badge rb-ok" style="font-size:11px">OK</span>
+      Clean — no structural issues
+    </div>
+    <div class="ia-legend-item">
+      <span class="ia-row-badge rb-id" style="font-size:11px">URL issue</span>
+      URLs have unnecessary numbers appended — messy for search engines
+    </div>
+    <div class="ia-legend-item">
+      <span class="ia-row-badge rb-dup" style="font-size:11px">Duplicate</span>
+      Content duplicates another section, splitting its value
+    </div>
+    <div class="ia-legend-item">
+      <span class="ia-row-badge rb-bloat" style="font-size:11px">Bloat</span>
+      Excess thin pages with little or no traffic value
+    </div>
+    <div class="ia-legend-item">
+      <span class="ia-row-badge rb-noix" style="font-size:11px">noindex</span>
+      Excluded from search indexing
+    </div>
+  </div>
+
+</div><!-- /ia-section -->
+
+<hr class="section-divider">
+
+<!-- ── DETAIL TREE ── -->
+<div class="tree-wrap">
+  <div class="tree-wrap-label">All pages — current site</div>
+
+  <div class="tree-root">
+    <span class="tree-root-label">cfsdental.com.au</span>
+    <span class="tree-root-url">Home — Family Dentist Oatley NSW</span>
+  </div>
+
+  <div class="tree-branches">
+
+    <!-- ABOUT -->
+    <div class="tree-group" id="grp-about">
+      <div class="tree-group-header" onclick="toggle('grp-about')">
+        <div class="tg-dot" style="background:var(--col-about)"></div>
+        <span class="tg-label">About Us</span>
+        <span class="tg-path">/about-us</span>
+        <span class="tg-count">4 pages</span>
+        <span class="tg-toggle">▶</span>
+      </div>
+      <div class="tree-children">
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-about)"></div><span class="tree-node-title">Dr Andrew Ng</span><span class="tree-node-path">/about-us/dr-andrew-ng/21363</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-about)"></div><span class="tree-node-title">Dr Marian Boulos</span><span class="tree-node-path">/about-us/dr-marian-boulos/25477</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-about)"></div><span class="tree-node-title">Dr Bassem Yacoub</span><span class="tree-node-path">/about-us/dr-bassem-yacoub/42846</span></div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="tree-group" id="grp-services">
+      <div class="tree-group-header" onclick="toggle('grp-services')">
+        <div class="tg-dot" style="background:var(--col-services)"></div>
+        <span class="tg-label">Services</span>
+        <span class="tg-path">/services</span>
+        <span class="tg-count">13 pages</span>
+        <span class="tg-toggle">▶</span>
+      </div>
+      <div class="tree-children">
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Children's Dentistry</span><span class="tree-node-path">/services/childrens-dentistry/15005</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Cosmetic &amp; Restorative Dentistry</span><span class="tree-node-path">/services/cosmetic-restorative-dentistry/15026</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Cosmetic Treatments</span><span class="tree-node-path">/services/cosmetic-treatments/36750</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Crowns &amp; Bridges</span><span class="tree-node-path">/services/crowns-bridges/15027</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Dental Implants</span><span class="tree-node-path">/services/dental-implants/14902</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Emergency Dentistry</span><span class="tree-node-path">/services/emergency-dentistry/37886</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Endodontics / Root Canal Therapy</span><span class="tree-node-path">/services/endodontics-root-canal-therapy/15004</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Family Dentistry</span><span class="tree-node-path">/services/family-dentistry/35201</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Invisalign®</span><span class="tree-node-path">/services/invisalign/36749</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Orthodontics</span><span class="tree-node-path">/services/orthodontics/15028</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Periodontal Treatment</span><span class="tree-node-path">/services/periodontal-treatment/15003</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Preventive Dentistry</span><span class="tree-node-path">/services/preventive-dentistry/15007</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-services)"></div><span class="tree-node-title">Teeth Whitening</span><span class="tree-node-path">/services/teeth-whitening/15025</span></div>
+      </div>
+    </div>
+
+    <!-- BLOG -->
+    <div class="tree-group" id="grp-blog">
+      <div class="tree-group-header" onclick="toggle('grp-blog')">
+        <div class="tg-dot" style="background:var(--col-blog)"></div>
+        <span class="tg-label">Blog</span>
+        <span class="tg-path">/blog</span>
+        <span class="tg-count">43 pages</span>
+        <span class="tg-toggle">▶</span>
+      </div>
+      <div class="tree-children">
+        <div class="tree-group" id="grp-blog-cats" style="margin-bottom:4px;">
+          <div class="tree-group-header" style="background:#fffbeb;border-color:#fde68a;" onclick="toggle('grp-blog-cats')">
+            <div class="tg-dot" style="background:#f59e0b"></div>
+            <span class="tg-label" style="color:#92400e;">Categories</span>
+            <span class="tg-path">/blog/categories/</span>
+            <span class="tg-count" style="color:#d97706;">12 pages · mirrors /services/</span>
+            <span class="tg-toggle">▶</span>
+          </div>
+          <div class="tree-children">
+            <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Children's Dentistry</span><span class="tree-node-path">/blog/categories/childrens-dentistry/15005</span></div>
+            <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Cosmetic &amp; Restorative</span><span class="tree-node-path">/blog/categories/cosmetic-restorative-dentistry/15026</span></div>
+            <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Dental Implants</span><span class="tree-node-path">/blog/categories/dental-implants/14902</span></div>
+            <div class="tree-more" id="more-blog-cats" onclick="showMore('more-blog-cats')"><span class="tree-more-badge">+9 more categories</span><span style="font-size:11px">click to expand</span></div>
+            <div id="extra-blog-cats" class="tree-more-extra">
+              <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Cosmetic Treatments</span><span class="tree-node-path">/blog/categories/cosmetic-treatments/36750</span></div>
+              <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Crowns &amp; Bridges</span><span class="tree-node-path">/blog/categories/crowns-bridges/15027</span></div>
+              <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Endodontics</span><span class="tree-node-path">/blog/categories/endodontics-root-canal-therapy/15004</span></div>
+              <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Family Dentistry</span><span class="tree-node-path">/blog/categories/family-dentistry/35201</span></div>
+              <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Invisalign®</span><span class="tree-node-path">/blog/categories/invisalign/36749</span></div>
+              <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Orthodontics</span><span class="tree-node-path">/blog/categories/orthodontics/15028</span></div>
+              <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Periodontal Treatment</span><span class="tree-node-path">/blog/categories/periodontal-treatment/15003</span></div>
+              <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Preventive Dentistry</span><span class="tree-node-path">/blog/categories/preventive-dentistry/15007</span></div>
+              <div class="tree-node" style="opacity:0.7"><div class="tree-node-dot" style="background:#f59e0b"></div><span class="tree-node-title">Teeth Whitening</span><span class="tree-node-path">/blog/categories/teeth-whitening/15025</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Benefits of Same-Day Dental Crowns</span><span class="tree-node-path">/blog/benefits-sameday-dental-crowns/39727</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">What You Need to Know about Invisalign</span><span class="tree-node-path">/blog/know-invisalign/38499</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Dental Implant Options: Do You Have Missing Teeth?</span><span class="tree-node-path">/blog/dental-implant-options-missing-teeth/44717</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">What Is Periodontal Disease and How to Avoid It?</span><span class="tree-node-path">/blog/periodontal-disease-avoid/43478</span></div>
+        <div class="tree-more" id="more-blog" onclick="showMore('more-blog')"><span class="tree-more-badge">+27 more posts</span><span style="font-size:11px">click to expand</span></div>
+        <div id="extra-blog" class="tree-more-extra">
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">What Are Examples of Preventative Dental Care?</span><span class="tree-node-path">/blog/are-examples-preventative-dental-care/43262</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">10 Things You Should Know When Considering Invisalign®</span><span class="tree-node-path">/blog/10-know-considering-invisalign/41755</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Why Choose Us?</span><span class="tree-node-path">/blog/choose/39237</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">A Family-Centred Approach to Dentistry</span><span class="tree-node-path">/blog/choose-cfs-dental-familycentred.../47015</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">What Common Problems Are Best for Cosmetic Dentistry?</span><span class="tree-node-path">/blog/common-problems-are-cosmetic.../43480</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Use Your Dental Benefits Before They Run Out!</span><span class="tree-node-path">/blog/dental-benefits-run/49688</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">What to Do in a Dental Emergency</span><span class="tree-node-path">/blog/dental-emergency/45789</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Dental Solutions in Oatley</span><span class="tree-node-path">/blog/dental-solutions-oatley/46372</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Find Your Dentist in Oatley, NSW</span><span class="tree-node-path">/blog/find-dentist-oatley-nsw/47722</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">How to Find the Best Family Dentist in Oatley</span><span class="tree-node-path">/blog/find-family-dentist-oatley/49073</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Finding the Perfect Kid-Friendly Dentist</span><span class="tree-node-path">/blog/gentle-smiles-finding-perfect.../45317</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Is it Best to Get Teeth Whitening Before or After Invisalign?</span><span class="tree-node-path">/blog/get-teeth-whitening-invisalign/43482</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Say Goodbye to Toothache: Root Canal Therapy</span><span class="tree-node-path">/blog/goodbye-toothache-root-canal.../46362</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Improve Your Smile with Invisalign® in Oatley</span><span class="tree-node-path">/blog/improve-smile-invisalign-oatley/48436</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Invisalign® and Braces: What's the Difference?</span><span class="tree-node-path">/blog/invisalign-braces/44716</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Using Invisalign with Teeth Whitening</span><span class="tree-node-path">/blog/invisalign-teeth-whitening/40437</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">What You Should Know about Dental Emergencies</span><span class="tree-node-path">/blog/know-dental-emergencies/44715</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Importance of Early Dental Visits</span><span class="tree-node-path">/blog/nurturing-healthy-smiles.../48893</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Restore Your Smile with Your Oatley Dentist</span><span class="tree-node-path">/blog/restore-smile-oatley-dentist/45288</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Is a Root Canal a Dental Emergency?</span><span class="tree-node-path">/blog/root-canal-dental-emergency/47976</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Do You Need a Smile Makeover or Dental Restoration?</span><span class="tree-node-path">/blog/smile-makeover-dental-restoration/45788</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Smiles for Little Ones: Kid-Friendly Dentist</span><span class="tree-node-path">/blog/smiles-finding-perfect-kidfriendly/45091</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Prioritise Your Dental Health This New Year</span><span class="tree-node-path">/blog/start-right-prioritise-dental-health/45289</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Teeth Whitening in Oatley, NSW</span><span class="tree-node-path">/blog/teeth-whitening-oatley-nsw/46373</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">Transform Your Smile: Comprehensive Cosmetic Dentistry</span><span class="tree-node-path">/blog/transform-smile-oatley-clinic.../46889</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">What Types of Cosmetic Dentistry Do You Offer?</span><span class="tree-node-path">/blog/types-cosmetic-dentistry-offer/41759</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-blog)"></div><span class="tree-node-title">What Is Periodontal Disease and How to Avoid It?</span><span class="tree-node-path">/blog/periodontal-disease-avoid/43478</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="tree-group" id="grp-faq">
+      <div class="tree-group-header" onclick="toggle('grp-faq')">
+        <div class="tg-dot" style="background:var(--col-faq)"></div>
+        <span class="tg-label">FAQ</span>
+        <span class="tg-path">/faqs &amp; /faq/</span>
+        <span class="tg-count">87 pages</span>
+        <span class="tg-toggle">▶</span>
+      </div>
+      <div class="tree-children">
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">FAQ Index</span><span class="tree-node-path">/faqs</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What is a dental implant?</span><span class="tree-node-path">/faq/dental-implant/44327</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What is Invisalign?</span><span class="tree-node-path">/faq/invisalign/43623</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What is a dental emergency?</span><span class="tree-node-path">/faq/dental-emergency/46579</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What is a root canal?</span><span class="tree-node-path">/faq/root-canal/46457</span></div>
+        <div class="tree-more" id="more-faq" onclick="showMore('more-faq')"><span class="tree-more-badge">+82 more FAQ pages</span><span style="font-size:11px">click to expand</span></div>
+        <div id="extra-faq" class="tree-more-extra">
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Am I a good candidate for Invisalign®?</span><span class="tree-node-path">/faq/am-candidate-invisalign/47490</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What are the benefits of dental implants?</span><span class="tree-node-path">/faq/are-benefits-dental-implants/44329</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What are CEREC crowns?</span><span class="tree-node-path">/faq/are-cerec-crowns/43625</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Are dental implants expensive?</span><span class="tree-node-path">/faq/are-dental-implants-expensive-are-safe/17829</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What are the types of root canal treatment?</span><span class="tree-node-path">/faq/are-types-root-canal-treatment/46458</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Can my child benefit from Myobrace®?</span><span class="tree-node-path">/faq/child-benefit-myobrace/47492</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Why is it important for children to visit the dentist?</span><span class="tree-node-path">/faq/children-visit-dentist/50192</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Why Choose Invisalign® in Oatley?</span><span class="tree-node-path">/faq/choose-invisalign-oatley-nsw/49867</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">How do composite fillings compare to amalgam?</span><span class="tree-node-path">/faq/composite-fillings-compare-amalgam/50332</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">When is it considered a dental emergency?</span><span class="tree-node-path">/faq/considered-dental-emergency-oatley/47337</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What does cosmetic dentistry include?</span><span class="tree-node-path">/faq/cosmetic-dentistry-include/46582</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What's the difference between a bridge and partial denture?</span><span class="tree-node-path">/faq/dental-bridge-partial-denture/42753</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Why do I need a dental crown?</span><span class="tree-node-path">/faq/dental-crown/42751</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Do dental implants hurt?</span><span class="tree-node-path">/faq/dental-implants-hurt/17831</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Can anyone have dental implants?</span><span class="tree-node-path">/faq/dental-implants/17830</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Should I get Invisalign® or braces?</span><span class="tree-node-path">/faq/get-invisalign-braces/44737</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Is it better to get teeth whitening at a dentist?</span><span class="tree-node-path">/faq/get-teeth-whitening-dentist/46589</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What happens at my emergency dental visit?</span><span class="tree-node-path">/faq/happens-emergency-dental-visit/47338</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">How can I help my child feel comfortable?</span><span class="tree-node-path">/faq/help-child-feel-comfortable.../50193</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">How much does Invisalign® cost?</span><span class="tree-node-path">/faq/invisalign-cost/49866</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What issues can Invisalign® correct?</span><span class="tree-node-path">/faq/issues-invisalign-correct/47489</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">How does Myobrace® work?</span><span class="tree-node-path">/faq/myobrace-work/47491</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Who needs preventive dentistry?</span><span class="tree-node-path">/faq/preventive-dentistry/17833</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What does the procedure for dental implants involve?</span><span class="tree-node-path">/faq/procedure-dental-implants-involve/44739</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What is restorative vs preventative dental treatment?</span><span class="tree-node-path">/faq/restorative-vs-preventative.../46581</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">What types of dental implants do you offer?</span><span class="tree-node-path">/faq/types-dental-implants-offer/47292</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Teeth whitening options Oatley, NSW</span><span class="tree-node-path">/faq/types-teeth-whitening/46590</span></div>
+          <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-faq)"></div><span class="tree-node-title">Do I need my wisdom teeth removed?</span><span class="tree-node-path">/faq/wisdom-teeth-removed/49224</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCIAL -->
+    <div class="tree-group" id="grp-financial">
+      <div class="tree-group-header" onclick="toggle('grp-financial')">
+        <div class="tg-dot" style="background:var(--col-financial)"></div>
+        <span class="tg-label">Financial Info</span>
+        <span class="tg-path">/financial-info</span>
+        <span class="tg-count">5 pages</span>
+        <span class="tg-toggle">▶</span>
+      </div>
+      <div class="tree-children">
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-financial)"></div><span class="tree-node-title">Health Funds</span><span class="tree-node-path">/financial-info/health-funds/7260</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-financial)"></div><span class="tree-node-title">HICAPS</span><span class="tree-node-path">/financial-info/hicaps/7254</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-financial)"></div><span class="tree-node-title">Payment Options</span><span class="tree-node-path">/financial-info/payment-options/7253</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-financial)"></div><span class="tree-node-title">Humm Payment Plans</span><span class="tree-node-path">/financial-info/payment-plans/7255</span></div>
+      </div>
+    </div>
+
+    <!-- SPECIALS -->
+    <div class="tree-group" id="grp-specials">
+      <div class="tree-group-header" onclick="toggle('grp-specials')">
+        <div class="tg-dot" style="background:var(--col-specials)"></div>
+        <span class="tg-label">Specials</span>
+        <span class="tg-path">/specials</span>
+        <span class="tg-count">3 pages</span>
+        <span class="tg-toggle">▶</span>
+      </div>
+      <div class="tree-children">
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-specials)"></div><span class="tree-node-title">New Patient Special</span><span class="tree-node-path">/specials/patient/897</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-specials)"></div><span class="tree-node-title">Zoom In-Chair Whitening Treatment</span><span class="tree-node-path">/specials/zoom-inchair-whitening-treatment/898</span></div>
+      </div>
+    </div>
+
+    <!-- OTHER -->
+    <div class="tree-group" id="grp-other">
+      <div class="tree-group-header" onclick="toggle('grp-other')">
+        <div class="tg-dot" style="background:var(--col-other)"></div>
+        <span class="tg-label">Standalone Pages</span>
+        <span class="tg-path">—</span>
+        <span class="tg-count">6 pages</span>
+        <span class="tg-toggle">▶</span>
+      </div>
+      <div class="tree-children">
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-contact)"></div><span class="tree-node-title">Contact</span><span class="tree-node-path">/contact</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-patient)"></div><span class="tree-node-title">New Patient Forms</span><span class="tree-node-path">/forms</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-tech)"></div><span class="tree-node-title">Office Tour</span><span class="tree-node-path">/office-tour</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-tech)"></div><span class="tree-node-title">Technology</span><span class="tree-node-path">/technology</span></div>
+        <div class="tree-node"><div class="tree-node-dot" style="background:var(--col-patient)"></div><span class="tree-node-title">Patient Information</span><span class="tree-node-path">/patient-information</span></div>
+        <div class="tree-node tree-node--noindex"><div class="tree-node-dot" style="background:var(--col-other)"></div><span class="tree-node-title">Privacy Policy</span><span class="tree-node-path">/privacy-policy</span></div>
+        <div class="tree-node tree-node--noindex"><div class="tree-node-dot" style="background:var(--col-other)"></div><span class="tree-node-title">Privacy (duplicate)</span><span class="tree-node-path">/main/privacy</span></div>
+      </div>
+    </div>
+
+  </div><!-- /tree-branches -->
+</div><!-- /tree-wrap -->
+
+<div id="recommended"></div>
+<!-- ── RECOMMENDED DIVIDER ── -->
+<div style="background:#ebebeb; padding: 0 80px 0;">
+  <div style="max-width:1400px; margin:0 auto;">
+    <hr style="border:none; border-top:1px solid #d4d4d4; margin:0;">
+  </div>
+</div>
+<div class="hero" style="padding-bottom:56px;">
+  <div class="hero-tag">
+    <span class="hero-tag-dot"></span>
+    Recommendation &middot; Proposed structure based on audit findings
+  </div>
+  <h2 style="font-size:56px;font-weight:700;line-height:1.1;letter-spacing:-0.03em;color:var(--text);max-width:820px;margin-bottom:20px;">A cleaner structure,<br>built for search.</h2>
+  <p class="hero-sub">The proposed architecture removes URL clutter, consolidates thin pages, and creates clear topic clusters — giving search engines a much cleaner picture of what CFS Dental offers.</p>
+  <div style="display:flex;gap:40px;margin-top:36px;padding-top:32px;border-top:1px solid #d4d4d4;flex-wrap:wrap;">
+    <div><div style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.03em;">120+ → ~35</div><div style="font-size:12px;color:var(--muted);margin-top:3px;">Total indexable pages</div></div>
+    <div><div style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.03em;">85+ → 0</div><div style="font-size:12px;color:var(--muted);margin-top:3px;">Standalone FAQ pages (FAQs on service pages)</div></div>
+    <div><div style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.03em;">12 → 11</div><div style="font-size:12px;color:var(--muted);margin-top:3px;">Services (cosmetic pages merged)</div></div>
+  </div>
+</div>
+
+<!-- ── VISUAL SITEMAP ── -->
+<div class="ia-section" style="padding-top:0; padding-bottom:64px;">
+
+  <div class="ia-root-wrap">
+    <div class="ia-root">cfsdental.com.au</div>
+  </div>
+
+  <div class="ia-cards-outer">
+    <div class="ia-cards" style="grid-template-columns: 1fr 2fr 1fr 1fr 1fr;">
+
+      <!-- ABOUT US -->
+      <div class="ia-card">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-about)">About Us</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-subgroup">
+            <div class="ia-card-row ia-card-row--sub"><span class="ia-card-row-label">Dr Andrew Ng</span></div>
+            <div class="ia-card-row ia-card-row--sub"><span class="ia-card-row-label">Dr Marian Boulos</span></div>
+            <div class="ia-card-row ia-card-row--sub"><span class="ia-card-row-label">Dr Bassem Yacoub</span></div>
+            <div class="ia-card-row ia-card-row--sub"><span class="ia-card-row-label">Technology</span></div>
+            <div class="ia-card-row ia-card-row--sub"><span class="ia-card-row-label">Office Tour</span></div>
+          </div>
+        </div>
+        <div class="ia-card-note">Technology &amp; Office Tour moved under <strong>/about-us/</strong></div>
+      </div>
+
+      <!-- SERVICES -->
+      <div class="ia-card ia-card--highlight">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-services)">Services</span>
+          <span class="ia-card-badge badge-ok">11 pages</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-row"><span class="ia-card-row-label">Preventive Dentistry</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Family &amp; Children's Dentistry</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Cosmetic Dentistry</span><span class="ia-row-badge rb-new">Merged</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Teeth Whitening</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Invisalign®</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Orthodontics</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Dental Implants</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Crowns &amp; Bridges</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Root Canal Therapy</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Periodontal Treatment</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Emergency Dentistry</span><span class="ia-row-badge rb-ok">Keep</span></div>
+        </div>
+        <div class="ia-card-note">Cosmetic &amp; Restorative + Cosmetic Treatments <strong>merged into one page.</strong> FAQs fold into each service page.</div>
+      </div>
+
+      <!-- ARTICLES -->
+      <div class="ia-card">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-blog)">Articles</span>
+          <span class="ia-card-badge badge-ok">30+ posts</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-row"><span class="ia-card-row-label">Articles listing</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-row"><span class="ia-card-row-label">Article posts × 30+</span><span class="ia-row-badge rb-new">Clean URLs</span></div>
+        </div>
+        <div class="ia-card-note"><strong>/blog/categories/</strong> removed — 301 redirect to /services/</div>
+      </div>
+
+      <!-- PATIENT HUB -->
+      <div class="ia-card">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-patient)">Patient</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-row"><span class="ia-card-row-label">Patient Info</span><span class="ia-row-badge rb-ok">Keep</span></div>
+          <div class="ia-card-subgroup">
+            <div class="ia-card-row ia-card-row--sub"><span class="ia-card-row-label">New Patient Forms</span></div>
+            <div class="ia-card-row ia-card-row--sub"><span class="ia-card-row-label">Financial Info</span></div>
+            <div class="ia-card-row ia-card-row--sub"><span class="ia-card-row-label">Specials</span></div>
+          </div>
+        </div>
+        <div class="ia-card-note">Financial &amp; Specials moved under <strong>/patient/</strong></div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="ia-card">
+        <div class="ia-card-header">
+          <span class="ia-card-title" style="color:var(--col-contact)">Contact</span>
+        </div>
+        <div class="ia-card-rows">
+          <div class="ia-card-row"><span class="ia-card-row-label">Contact Us</span><span class="ia-row-badge rb-ok">Keep</span></div>
+        </div>
+        <div class="ia-card-note">/contact — no changes needed. Privacy Policy &amp; legal in footer (noindex).</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="ia-legend">
+    <div class="ia-legend-item"><span class="ia-row-badge rb-ok" style="font-size:11px">Keep</span> No changes</div>
+    <div class="ia-legend-item"><span class="ia-row-badge rb-new" style="font-size:11px">Merged / Consolidated</span> Pages combined</div>
+    <div class="ia-legend-item"><span class="ia-row-badge rb-new" style="font-size:11px">Clean URLs</span> Numeric IDs removed, 301 redirected</div>
+    <div class="ia-legend-item"><span class="ia-row-badge rb-bloat" style="font-size:11px">Remove</span> Removed with 301 redirect</div>
+    <div class="ia-legend-item"><span class="ia-row-badge rb-noix" style="font-size:11px">noindex</span> Not indexed by search engines</div>
+  </div>
+
+</div>
+
+<!-- ── RECOMMENDED MIGRATION NOTES ── -->
+<div style="background:#ebebeb; padding: 0 80px 56px;">
+<div style="max-width:900px; margin: 0 auto;">
+
+  <div style="display:none;">
+
+    <!-- Root -->
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;background:#1a1f2e;border-radius:10px;margin-bottom:8px;">
+      <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:-0.01em;">cfsdental.com.au</span>
+      <span style="font-size:12px;color:rgba(255,255,255,0.35);margin-left:auto;font-family:monospace;">/</span>
+      <span style="font-size:11px;font-weight:600;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:2px 8px;border-radius:20px;">Home</span>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="sm-row sm-l1" style="--dot:#4f46e5">
+      <div class="sm-indent sm-indent-1"></div>
+      <div class="sm-dot" style="background:#4f46e5"></div>
+      <span class="sm-name">About Us</span>
+      <span class="sm-url">/about-us</span>
+      <span class="sm-type">Overview</span>
+      <span class="sm-count">1 page</span>
+    </div>
+    <div class="sm-row sm-l2">
+      <div class="sm-indent sm-indent-2"></div>
+      <div class="sm-dot" style="background:#4f46e5;opacity:0.4"></div>
+      <span class="sm-name sm-sub">Team Member Detail</span>
+      <span class="sm-url">/about-us/[name]</span>
+      <span class="sm-type">Team</span>
+      <span class="sm-count">×3 pages</span>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="sm-row sm-l1 sm-spacer" style="--dot:#16a34a">
+      <div class="sm-indent sm-indent-1"></div>
+      <div class="sm-dot" style="background:#16a34a"></div>
+      <span class="sm-name">Services</span>
+      <span class="sm-url">/services</span>
+      <span class="sm-type">Listing</span>
+      <span class="sm-count">1 page</span>
+    </div>
+    <div class="sm-row sm-l2">
+      <div class="sm-indent sm-indent-2"></div>
+      <div class="sm-dot" style="background:#16a34a;opacity:0.4"></div>
+      <span class="sm-name sm-sub">Service Detail</span>
+      <span class="sm-url">/services/[slug]</span>
+      <span class="sm-type">Detail</span>
+      <span class="sm-count">×11 pages</span>
+      <span class="sm-note">Was 13 — 2 cosmetic pages merged</span>
+    </div>
+
+    <!-- ARTICLES -->
+    <div class="sm-row sm-l1 sm-spacer" style="--dot:#d97706">
+      <div class="sm-indent sm-indent-1"></div>
+      <div class="sm-dot" style="background:#d97706"></div>
+      <span class="sm-name">Articles</span>
+      <span class="sm-url">/blog</span>
+      <span class="sm-type">Listing</span>
+      <span class="sm-count">1 page</span>
+    </div>
+    <div class="sm-row sm-l2">
+      <div class="sm-indent sm-indent-2"></div>
+      <div class="sm-dot" style="background:#d97706;opacity:0.4"></div>
+      <span class="sm-name sm-sub">Article Detail</span>
+      <span class="sm-url">/blog/[slug]</span>
+      <span class="sm-type">Detail</span>
+      <span class="sm-count">×30 pages</span>
+      <span class="sm-note">URLs cleaned — numeric IDs removed</span>
+    </div>
+
+    <!-- FAQ -->
+    <div class="sm-row sm-l1 sm-spacer" style="--dot:#2563eb">
+      <div class="sm-indent sm-indent-1"></div>
+      <div class="sm-dot" style="background:#2563eb"></div>
+      <span class="sm-name">FAQ Hub</span>
+      <span class="sm-url">/faq</span>
+      <span class="sm-type">Hub</span>
+      <span class="sm-count">1 page</span>
+    </div>
+    <div class="sm-row sm-l2">
+      <div class="sm-indent sm-indent-2"></div>
+      <div class="sm-dot" style="background:#2563eb;opacity:0.4"></div>
+      <span class="sm-name sm-sub">FAQ Topic Page</span>
+      <span class="sm-url">/faq/[topic]</span>
+      <span class="sm-type">Detail</span>
+      <span class="sm-count">×6 pages</span>
+      <span class="sm-note sm-note--warn">Was 85+ thin pages — all redirected in</span>
+    </div>
+
+    <!-- PATIENT -->
+    <div class="sm-row sm-l1 sm-spacer" style="--dot:#7c3aed">
+      <div class="sm-indent sm-indent-1"></div>
+      <div class="sm-dot" style="background:#7c3aed"></div>
+      <span class="sm-name">Patient Info</span>
+      <span class="sm-url">/patient</span>
+      <span class="sm-type">Hub</span>
+      <span class="sm-count">1 page</span>
+    </div>
+    <div class="sm-row sm-l2">
+      <div class="sm-indent sm-indent-2"></div>
+      <div class="sm-dot" style="background:#7c3aed;opacity:0.4"></div>
+      <span class="sm-name sm-sub">Financial Info</span>
+      <span class="sm-url">/patient/financial</span>
+      <span class="sm-type">Detail</span>
+      <span class="sm-count">4 pages</span>
+    </div>
+    <div class="sm-row sm-l2">
+      <div class="sm-indent sm-indent-2"></div>
+      <div class="sm-dot" style="background:#7c3aed;opacity:0.4"></div>
+      <span class="sm-name sm-sub">New Patient Forms</span>
+      <span class="sm-url">/patient/forms</span>
+      <span class="sm-type">Detail</span>
+      <span class="sm-count">1 page</span>
+    </div>
+    <div class="sm-row sm-l2">
+      <div class="sm-indent sm-indent-2"></div>
+      <div class="sm-dot" style="background:#db2777;opacity:0.5"></div>
+      <span class="sm-name sm-sub">Specials</span>
+      <span class="sm-url">/patient/specials</span>
+      <span class="sm-type">Detail</span>
+      <span class="sm-count">2 pages</span>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="sm-row sm-l1 sm-spacer" style="--dot:#dc2626">
+      <div class="sm-indent sm-indent-1"></div>
+      <div class="sm-dot" style="background:#dc2626"></div>
+      <span class="sm-name">Contact Us</span>
+      <span class="sm-url">/contact</span>
+      <span class="sm-type">Contact</span>
+      <span class="sm-count">1 page</span>
+    </div>
+
+    <!-- STANDALONE -->
+    <div class="sm-row sm-l1 sm-spacer" style="--dot:#475569">
+      <div class="sm-indent sm-indent-1"></div>
+      <div class="sm-dot" style="background:#475569"></div>
+      <span class="sm-name">Technology</span>
+      <span class="sm-url">/technology</span>
+      <span class="sm-type">Standalone</span>
+      <span class="sm-count">1 page</span>
+    </div>
+    <div class="sm-row sm-l1" style="--dot:#475569">
+      <div class="sm-indent sm-indent-1"></div>
+      <div class="sm-dot" style="background:#475569"></div>
+      <span class="sm-name">Office Tour</span>
+      <span class="sm-url">/office-tour</span>
+      <span class="sm-type">Standalone</span>
+      <span class="sm-count">1 page</span>
+    </div>
+    <div class="sm-row sm-l1" style="--dot:#9ca3af;opacity:0.6">
+      <div class="sm-indent sm-indent-1"></div>
+      <div class="sm-dot" style="background:#9ca3af"></div>
+      <span class="sm-name">Privacy Policy</span>
+      <span class="sm-url">/privacy-policy</span>
+      <span class="sm-type sm-type--noix">noindex</span>
+      <span class="sm-count">1 page</span>
+  </div>
+
+  <!-- Migration notes -->
+  <div style="margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px 20px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af;margin-bottom:12px;">What we're fixing</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;">
+          <span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-top:1px;">85+ pages</span>
+          <span style="color:var(--muted);">Individual FAQ pages collapsed into 6 topic pages — all questions preserved, just consolidated</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;">
+          <span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-top:1px;">30+ pages</span>
+          <span style="color:var(--muted);">Blog post URLs cleaned — messy numeric IDs removed</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;">
+          <span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-top:1px;">13 pages</span>
+          <span style="color:var(--muted);">Service page URLs cleaned — numeric IDs removed</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;">
+          <span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-top:1px;">12 pages</span>
+          <span style="color:var(--muted);">Blog category pages removed — they duplicated the services section</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;">
+          <span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-top:1px;">2 pages</span>
+          <span style="color:var(--muted);">Duplicate cosmetic pages merged into one stronger page</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px 20px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af;margin-bottom:12px;">Nothing is lost</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);">
+          <span style="color:#16a34a;font-size:16px;line-height:1.2;">✓</span>
+          All 30+ blog posts carry across — same content, cleaner URLs
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);">
+          <span style="color:#16a34a;font-size:16px;line-height:1.2;">✓</span>
+          Every FAQ question is preserved — consolidated into topic pages
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);">
+          <span style="color:#16a34a;font-size:16px;line-height:1.2;">✓</span>
+          All 11 service pages carry across intact
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);">
+          <span style="color:#16a34a;font-size:16px;line-height:1.2;">✓</span>
+          Patient info, forms, and specials all kept — moved under a cleaner nav structure
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);">
+          <span style="color:#16a34a;font-size:16px;line-height:1.2;">✓</span>
+          Every old URL 301 redirects to its new home — no traffic or rankings lost
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+<!-- ── SCOPE SUMMARY ── -->
+<div id="budget" style="padding: 0 80px 56px;">
+<div style="max-width:900px; margin: 0 auto; display:flex; flex-direction:column; gap:20px;">
+
+  <!-- Traffic note -->
+  <div style="padding:14px 18px;background:rgba(245,158,11,0.08);border:1px solid #fde68a;border-radius:10px;">
+    <p style="font-size:13px;color:#92400e;line-height:1.6;margin:0;"><strong>Note on traffic and scope:</strong> CFS Dental is currently getting ~250 sessions/month. A smaller, well-structured site will benefit SEO — clean URLs and focused service pages outperform 120+ thin pages. Blog migration and additional content work are separate projects after launch.</p>
+  </div>
+
+  <!-- Header -->
+  <div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af;margin-bottom:6px;">Budget · $6,000</div>
+    <h2 style="font-size:22px;font-weight:700;color:var(--text);margin:0 0 6px;">What you get for $6k</h2>
+    <p style="font-size:14px;color:var(--muted);margin:0;line-height:1.6;">A new Webflow site — built from a premium template, branded to CFS Dental, and structured for SEO from day one. Here's exactly what that means in practice.</p>
+  </div>
+
+  <!-- How a Webflow template build works -->
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:22px 26px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;margin-bottom:18px;">How a Webflow template build works</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;">
+
+      <div style="padding-right:20px;border-right:1px solid #e2e8f0;">
+        <div style="font-size:28px;font-weight:800;color:#e2e8f0;line-height:1;margin-bottom:8px;">01</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px;">Template selected</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;">We choose a premium Webflow template designed for professional service businesses — clean layout, proven UX, mobile ready.</div>
+      </div>
+
+      <div style="padding:0 20px;border-right:1px solid #e2e8f0;">
+        <div style="font-size:28px;font-weight:800;color:#e2e8f0;line-height:1;margin-bottom:8px;">02</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px;">Branded to CFS Dental</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;">Your logo, brand colours, and fonts replace the template defaults. We swap in your photography. It looks like your site — not a template.</div>
+      </div>
+
+      <div style="padding:0 20px;border-right:1px solid #e2e8f0;">
+        <div style="font-size:28px;font-weight:800;color:#e2e8f0;line-height:1;margin-bottom:8px;">03</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px;">8 page templates built</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;">Each distinct page type is designed once. That template is then reused to generate multiple pages — efficient without cutting corners.</div>
+      </div>
+
+      <div style="padding-left:20px;">
+        <div style="font-size:28px;font-weight:800;color:#e2e8f0;line-height:1;margin-bottom:8px;">04</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px;">~25 pages live</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;">Content goes in, all 301 redirects are set, and the site launches — clean structure, faster load, better rankings from day one.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- The 8 templates -->
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:22px 26px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#16a34a;margin-bottom:4px;">The 8 page templates</div>
+    <p style="font-size:12px;color:var(--muted);margin:0 0 16px;">Each row below is one template design. The pages column shows how many actual pages that template generates on the live site.</p>
+
+    <!-- Table header -->
+    <div style="display:grid;grid-template-columns:2fr 3fr 130px 130px;gap:0;border-bottom:2px solid #f0fdf4;padding-bottom:8px;margin-bottom:4px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;">Template</div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;">What it covers</div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;">Pages generated</div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;">Who populates</div>
+    </div>
+
+    <!-- Rows -->
+    <div style="display:flex;flex-direction:column;">
+
+      <div style="display:grid;grid-template-columns:2fr 3fr 130px 130px;gap:0;padding:10px 0;border-bottom:1px solid #f3f4f6;align-items:start;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Home</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5;">Hero, services snapshot, trust signals, contact CTA</div>
+        <div style="font-size:13px;color:var(--muted);">1 page</div>
+        <div style="font-size:12px;"><span style="background:#f0fdf4;color:#15803d;font-weight:600;padding:2px 8px;border-radius:20px;">We build</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 3fr 130px 130px;gap:0;padding:10px 0;border-bottom:1px solid #f3f4f6;align-items:start;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Services listing</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5;">Browse all treatments — cards linking to each service page</div>
+        <div style="font-size:13px;color:var(--muted);">1 page</div>
+        <div style="font-size:12px;"><span style="background:#f0fdf4;color:#15803d;font-weight:600;padding:2px 8px;border-radius:20px;">We build</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 3fr 130px 130px;gap:0;padding:10px 0;border-bottom:1px solid #f3f4f6;align-items:start;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">Service detail</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:2px;">1 template → 11 pages</div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5;">Individual treatment page — description, benefits, FAQs, CTA. We build one complete example; the layout is then reused for all 11 services.</div>
+        <div style="font-size:13px;color:var(--muted);">11 pages</div>
+        <div>
+          <div style="font-size:12px;margin-bottom:4px;"><span style="background:#f0fdf4;color:#15803d;font-weight:600;padding:2px 8px;border-radius:20px;">We build 1</span></div>
+          <div style="font-size:12px;"><span style="background:#fef9c3;color:#854d0e;font-weight:600;padding:2px 8px;border-radius:20px;">You add 10</span></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 3fr 130px 130px;gap:0;padding:10px 0;border-bottom:1px solid #f3f4f6;align-items:start;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">About Us</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:2px;">1 template → 5 pages</div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5;">Practice story, values, and team intro on the main About page — same template reused for Team Bios, Technology, and Office Tour sub-pages</div>
+        <div style="font-size:13px;color:var(--muted);">5 pages</div>
+        <div style="font-size:12px;"><span style="background:#f0fdf4;color:#15803d;font-weight:600;padding:2px 8px;border-radius:20px;">We build</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 3fr 130px 130px;gap:0;padding:10px 0;border-bottom:1px solid #f3f4f6;align-items:start;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Articles listing</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5;">Blog index — shows all posts, auto-updates as new posts are added</div>
+        <div style="font-size:13px;color:var(--muted);">1 page</div>
+        <div style="font-size:12px;"><span style="background:#f0fdf4;color:#15803d;font-weight:600;padding:2px 8px;border-radius:20px;">We build</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 3fr 130px 130px;gap:0;padding:10px 0;border-bottom:1px solid #f3f4f6;align-items:start;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">Article detail</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:2px;">1 template → grows over time</div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5;">Individual blog post layout — we set up 3 posts at launch. You can add more any time directly in Webflow, no developer needed.</div>
+        <div style="font-size:13px;color:var(--muted);">3 posts at launch</div>
+        <div style="font-size:12px;"><span style="background:#f0fdf4;color:#15803d;font-weight:600;padding:2px 8px;border-radius:20px;">We build</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 3fr 130px 130px;gap:0;padding:10px 0;border-bottom:1px solid #f3f4f6;align-items:start;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Contact Us</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5;">Contact form, location map, phone, hours of operation</div>
+        <div style="font-size:13px;color:var(--muted);">1 page</div>
+        <div style="font-size:12px;"><span style="background:#f0fdf4;color:#15803d;font-weight:600;padding:2px 8px;border-radius:20px;">We build</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 3fr 130px 130px;gap:0;padding:10px 0;align-items:start;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">Patient info pages</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:2px;">1 inner-page layout → 3 pages</div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5;">Financial information, patient forms, and new patient guide — all use the same inner-page layout</div>
+        <div style="font-size:13px;color:var(--muted);">3 pages</div>
+        <div style="font-size:12px;"><span style="background:#f0fdf4;color:#15803d;font-weight:600;padding:2px 8px;border-radius:20px;">We build</span></div>
+      </div>
+
+    </div>
+
+    <!-- Total -->
+    <div style="border-top:2px solid #f0fdf4;margin-top:14px;padding-top:14px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <span style="font-size:14px;font-weight:700;color:var(--text);">Total at launch</span>
+        <span style="font-size:13px;color:var(--muted);margin-left:8px;">8 distinct templates → ~25 live pages</span>
+      </div>
+      <span style="font-size:15px;font-weight:800;color:#16a34a;">$6,000</span>
+    </div>
+  </div>
+
+  <!-- What you provide / What's next -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:18px 22px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#15803d;margin-bottom:12px;">What we handle</div>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text);">
+          <span style="color:#16a34a;flex-shrink:0;margin-top:1px;">✓</span>
+          Template selection and Webflow setup
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text);">
+          <span style="color:#16a34a;flex-shrink:0;margin-top:1px;">✓</span>
+          Full branding — logo, colours, fonts, images throughout
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text);">
+          <span style="color:#16a34a;flex-shrink:0;margin-top:1px;">✓</span>
+          All 8 templates designed and built
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text);">
+          <span style="color:#16a34a;flex-shrink:0;margin-top:1px;">✓</span>
+          1 fully populated example service page
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text);">
+          <span style="color:#16a34a;flex-shrink:0;margin-top:1px;">✓</span>
+          3 blog posts loaded at launch
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text);">
+          <span style="color:#16a34a;flex-shrink:0;margin-top:1px;">✓</span>
+          All 301 redirects from old URLs mapped and set
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text);">
+          <span style="color:#16a34a;flex-shrink:0;margin-top:1px;">✓</span>
+          SEO foundations — page titles, meta descriptions, sitemap
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px 22px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af;margin-bottom:4px;">What's not in this scope</div>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 12px;line-height:1.5;">These are separate projects after the site launches — or things you handle yourself using the templates we build.</p>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--muted);">
+          <span style="color:#d1d5db;flex-shrink:0;margin-top:1px;">→</span>
+          <span><strong style="color:var(--text);font-weight:600;">10 remaining service pages</strong> — you fill content using the template we build</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--muted);">
+          <span style="color:#d1d5db;flex-shrink:0;margin-top:1px;">→</span>
+          <span><strong style="color:var(--text);font-weight:600;">Blog migration</strong> — 30 existing posts are a separate content project after launch</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--muted);">
+          <span style="color:#d1d5db;flex-shrink:0;margin-top:1px;">→</span>
+          <span><strong style="color:var(--text);font-weight:600;">Custom design requests</strong> — animations or bespoke components outside the template</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--muted);">
+          <span style="color:#d1d5db;flex-shrink:0;margin-top:1px;">→</span>
+          <span><strong style="color:var(--text);font-weight:600;">Standalone FAQ pages</strong> — FAQ content is consolidated into service pages and home</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// Draw horizontal connector line spanning L1 columns
+(function() {
+  const cols = document.querySelectorAll('.vis-col');
+  const bar = document.getElementById('hbar');
+  if (!cols.length || !bar) return;
+  const first = cols[0].getBoundingClientRect();
+  const last = cols[cols.length - 1].getBoundingClientRect();
+  const parent = bar.parentElement.getBoundingClientRect();
+  bar.style.left = (first.left + first.width / 2 - parent.left) + 'px';
+  bar.style.width = (last.left + last.width / 2 - first.left - first.width / 2) + 'px';
+  bar.style.right = 'auto';
+})();
+
+// Nav active state on scroll
+const navSections = [
+  { id: 'current', btn: 0 },
+  { id: 'recommended', btn: 1 },
+  { id: 'budget', btn: 2 }
+];
+const navBtns = document.querySelectorAll('.nav-btn');
+window.addEventListener('scroll', () => {
+  let active = 0;
+  for (let i = 0; i < navSections.length; i++) {
+    const el = document.getElementById(navSections[i].id);
+    if (el && el.getBoundingClientRect().top <= 80) active = i;
+  }
+  navBtns.forEach((b, i) => b.classList.toggle('active', i === active));
+}, { passive: true });
+
+// Mark individual groups whose children exceed the clamped height
+function markOverflowGroups() {
+  document.querySelectorAll('.tree-group').forEach(g => {
+    const ch = g.querySelector(':scope > .tree-children');
+    if (ch && ch.scrollHeight > 132) g.classList.add('has-overflow');
+  });
+}
+markOverflowGroups();
+
+// Current-site inventory: fixed-height preview with gradient overlay + expand button
+(function initInventoryPreview() {
+  const wrap = document.querySelector('.tree-wrap');
+  if (!wrap) return;
+  const PREVIEW_H = 420;
+
+  wrap.classList.add('tree-wrap-preview');
+  wrap.style.maxHeight = PREVIEW_H + 'px';
+
+  const btn = document.createElement('button');
+  btn.className = 'tree-expand-btn';
+  btn.innerHTML = '<span class="btn-icon">↕</span> Show all pages';
+  wrap.after(btn);
+
+  btn.addEventListener('click', () => {
+    const collapsed = wrap.classList.contains('tree-wrap-preview');
+    if (collapsed) {
+      wrap.classList.remove('tree-wrap-preview');
+      wrap.style.maxHeight = '';
+      btn.innerHTML = '<span class="btn-icon">↑</span> Collapse';
+    } else {
+      wrap.classList.add('tree-wrap-preview');
+      wrap.style.maxHeight = PREVIEW_H + 'px';
+      btn.innerHTML = '<span class="btn-icon">↕</span> Show all pages';
+    }
+  });
+})();
+
+function toggle(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+function showMore(id) {
+  const btn = document.getElementById(id);
+  const extra = document.getElementById(id.replace('more-', 'extra-'));
+  if (extra) { extra.classList.add('visible'); btn.style.display = 'none'; }
+}
+</script>
+</body>
+</html>
